@@ -1,5 +1,7 @@
 package scientists.house.affiche.app.screens.main.tabs.news
 
+import android.util.Log
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -8,6 +10,8 @@ import scientists.house.affiche.app.databinding.FragmentNewsPostDetailsBinding
 import scientists.house.affiche.app.utils.DataHolder
 import scientists.house.affiche.app.model.news.entities.NewsDetailedPost
 import scientists.house.affiche.app.screens.base.BaseFragment
+import scientists.house.affiche.app.screens.main.tabs.news.list.Photo
+import scientists.house.affiche.app.screens.main.tabs.news.list.PhotosAdapter
 import scientists.house.affiche.app.utils.viewBinding
 import scientists.house.affiche.app.utils.viewModelCreator
 import scientists.house.affiche.app.utils.visible
@@ -24,12 +28,19 @@ class NewsPostDetailsFragment : BaseFragment(R.layout.fragment_news_post_details
     private val binding by viewBinding<FragmentNewsPostDetailsBinding>()
 
     private val args by navArgs<NewsPostDetailsFragmentArgs>()
+
+
+    private val onItemClick: (Photo) -> Unit = { }
+
+    private val adapter = PhotosAdapter(onItemClick)
+
     override fun setupViews() {
         super.setupViews()
         binding.apply {
             fnpdIError.veMbTryAgain.setOnClickListener {
                 viewModel.load(args.postLink)
             }
+            photosRv.adapter = adapter
         }
     }
 
@@ -43,6 +54,7 @@ class NewsPostDetailsFragment : BaseFragment(R.layout.fragment_news_post_details
                         fnewsLlContent.visible = false
                     }
                 }
+
                 is DataHolder.READY -> {
                     binding.apply {
                         fnpdILoading.root.visible = false
@@ -51,7 +63,14 @@ class NewsPostDetailsFragment : BaseFragment(R.layout.fragment_news_post_details
                     }
 
                     setupDetailedNews(holder.data)
+                    val photos = mutableListOf<Photo>()
+                    holder.data.photos.forEachIndexed { index, photo ->
+                        photos.add(Photo(index, photo))
+                    }
+
+                    adapter.setupItems(photos)
                 }
+
                 is DataHolder.ERROR -> {
                     binding.apply {
                         fnpdILoading.root.visible = false

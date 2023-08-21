@@ -62,7 +62,7 @@ class NewsFragment : BaseFragment(R.layout.fragment_post_news) {
     }
 
     private fun goPage(page: String) {
-        Toast.makeText(requireContext(), "Страница $page", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(requireContext(), "Страница $page", Toast.LENGTH_SHORT).show()
         setupViews()
         viewModel.load()
         observeViewModel()
